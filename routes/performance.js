@@ -40,6 +40,11 @@ router.get("/metrics", (req, res) => {
       utilizationPercent: device.utilizationPercent,
       temperatureCelsius: device.temperatureCelsius,
       lastUpdated: device.lastUpdated,
+      
+      // Capacity metrics
+      totalCapacityTB: device.totalCapacityTB,
+      usedCapacityTB: device.usedCapacityTB,
+      availableCapacityTB: device.availableCapacityTB,
     }));
 
     // Sort devices by score in ascending order (lowest to highest)

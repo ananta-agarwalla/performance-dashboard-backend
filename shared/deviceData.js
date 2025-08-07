@@ -335,11 +335,18 @@ const generateDeviceData = () => {
       addVariance(baseLatency * 2, 20).toFixed(3)
     );
 
-    // Feature metrics
+    // Feature metrics - declare utilizationPercent first
     const uptimePercentage = randomInRange(98.5, 99.9, 2);
-    const utilizationPercent = randomInRange(45, 85);
+    
+    // Simple random capacity generation with different utilization patterns
+    const utilizationPercent = randomInRange(15, 95); // Wide range from under-utilized to over-utilized
+    
     const temperatureCelsius = randomInRange(18, 32);
     const status = Math.random() > 0.1 ? "online" : "maintenance";
+
+    // Capacity metrics - calculate used capacity based on utilization
+    const totalCapacityTB = parseFloat(capacityValue.toFixed(2));
+    const usedCapacityTB = parseFloat((totalCapacityTB * (utilizationPercent / 100)).toFixed(2));
 
     return {
       // Static values that never change
@@ -386,6 +393,11 @@ const generateDeviceData = () => {
       networkUtilization,
       queueDepth,
       responseTime,
+      
+      // Capacity information
+      totalCapacityTB,
+      usedCapacityTB,
+      availableCapacityTB: parseFloat((totalCapacityTB - usedCapacityTB).toFixed(2)),
 
       // Feature specific
       uptimePercentage,
