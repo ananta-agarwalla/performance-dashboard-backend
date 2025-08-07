@@ -306,12 +306,19 @@ const generateDeviceData = () => {
     const readSpeed = Math.floor(addVariance(baseReadSpeed, 15));
     const writeSpeed = Math.floor(addVariance(baseWriteSpeed, 15));
     const iops = Math.floor(addVariance(baseIOPS, 20));
-    const latency = parseFloat(
+    const readLatency = parseFloat(
       (addVariance(baseLatency, 15) > 0.01
         ? addVariance(baseLatency, 15)
         : baseLatency
       ).toFixed(3)
     );
+    const writeLatency = parseFloat(
+      (addVariance(baseLatency * 1.1, 15) > 0.01
+        ? addVariance(baseLatency * 1.1, 15)
+        : baseLatency * 1.1
+      ).toFixed(3)
+    );
+    const latency = readLatency; // Keep for backward compatibility
     const throughput = Math.floor(addVariance(baseThroughput, 18));
     const price = Math.floor(addVariance(template.basePrice, 8));
     const lastUpdated = new Date().toISOString();
@@ -368,6 +375,8 @@ const generateDeviceData = () => {
       writeSpeed,
       iops,
       latency,
+      readLatency,
+      writeLatency,
       throughput,
       price,
       lastUpdated,

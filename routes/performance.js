@@ -30,6 +30,8 @@ router.get("/metrics", (req, res) => {
       writeSpeed: device.writeSpeed,
       iops: device.iops,
       latency: device.latency,
+      readLatency: device.readLatency,
+      writeLatency: device.writeLatency,
       throughput: device.throughput,
       cpuUtilization: device.cpuUtilization,
       memoryUtilization: device.memoryUtilization,
