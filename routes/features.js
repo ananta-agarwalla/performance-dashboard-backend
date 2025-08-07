@@ -1,92 +1,54 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-// Mock features data
-const featuresData = [
-  {
-    id: 1,
-    name: "BLR-CZ234402KF",
-    type: "HPE GreenLake For File Storage",
-    featureScore: 97,
-    features: {
-      dataManagement: {
-        deduplication: "Advanced",
-        compression: "Advanced",
-        tiering: "Automated"
-      },
-      security: {
-        encryption: "AES-256",
-        accessControl: ["RBAC", "MFA"]
-      },
-      availability: ["Auto-failover", "Hot-spare", "RAID"],
-      management: ["REST API", "Cloud Integration", "AI Analytics"],
-      protocols: ["NFS", "SMB", "REST API"]
-    },
-    snapshots: "Yes",
-    replication: "Yes",
-    protocols: ["NFS", "SMB", "REST API"]
-  },
-  {
-    id: 2,
-    name: "SYD-AB123456CD",
-    type: "HPE Primera",
-    featureScore: 94,
-    features: {
-      dataManagement: {
-        deduplication: "Advanced",
-        compression: "Standard",
-        tiering: "Automated"
-      },
-      security: {
-        encryption: "AES-256",
-        accessControl: ["RBAC", "MFA", "LDAP"]
-      },
-      availability: ["Auto-failover", "Clustering", "RAID"],
-      management: ["REST API", "Cloud Integration", "AI Analytics", "CLI"],
-      protocols: ["FC", "iSCSI", "NVMe-oF"]
-    },
-    snapshots: "Yes",
-    replication: "Yes",
-    protocols: ["FC", "iSCSI", "NVMe-oF"]
-  },
-  {
-    id: 3,
-    name: "NYC-EF789012GH",
-    type: "HPE Nimble Storage",
-    featureScore: 91,
-    features: {
-      dataManagement: {
-        deduplication: "Standard",
-        compression: "Advanced",
-        tiering: "Manual"
-      },
-      security: {
-        encryption: "AES-128",
-        accessControl: ["RBAC"]
-      },
-      availability: ["Auto-failover", "RAID"],
-      management: ["REST API", "Web Interface"],
-      protocols: ["iSCSI", "FC"]
-    },
-    snapshots: "Yes",
-    replication: "Yes",
-    protocols: ["iSCSI", "FC"]
-  }
-];
+// Import shared device data system
+const { getCurrentDeviceData } = require("../shared/deviceData");
 
-// GET /features/comparison - Fetches feature comparison data
-router.get('/comparison', (req, res) => {
+// GET /features/comparison - Fetches feature-focused data
+router.get("/comparison", (req, res) => {
   try {
+    // Get consistent device data (shared across all APIs)
+    const deviceData = getCurrentDeviceData();
+
+    // Transform data to focus on feature metrics
+    const featuresData = deviceData.map((device) => ({
+      // Static values
+      id: device.id,
+      name: device.name,
+      type: device.type,
+      capacity: device.capacity,
+      features: device.features,
+      snapshots: device.snapshots,
+      replication: device.replication,
+      protocols: device.protocols,
+
+      // Feature-focused metrics
+      featureScore: device.featureScore,
+      uptimePercentage: device.uptimePercentage,
+      featureUtilization: device.featureUtilization,
+      securityCompliance: device.securityCompliance,
+      managementEfficiency: device.managementEfficiency,
+      status: device.status,
+      lastUpdated: device.lastUpdated,
+    }));
+
+    // Sort devices by featureScore in ascending order (lowest to highest)
+    const sortedFeaturesData = featuresData.sort(
+      (a, b) => a.featureScore - b.featureScore
+    );
+
     res.json({
-      devices: featuresData
+      devices: sortedFeaturesData,
+      timestamp: new Date().toISOString(),
+      count: sortedFeaturesData.length,
     });
   } catch (error) {
     res.status(500).json({
       error: {
         code: "INTERNAL_ERROR",
         message: "Failed to fetch feature comparison data",
-        details: error.message
-      }
+        details: error.message,
+      },
     });
   }
 });

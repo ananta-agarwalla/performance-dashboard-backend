@@ -1,62 +1,52 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-// Mock sustainability data
-const sustainabilityData = [
-  {
-    id: 1,
-    name: "BLR-CZ234402KF",
-    type: "HPE GreenLake For File Storage",
-    greenScore: 98,
-    sustainability: {
-      powerEfficiency: 92,
-      carbonReduction: 78,
-      circularEconomy: 85
-    },
-    capacity: "100TB",
-    price: 45000
-  },
-  {
-    id: 2,
-    name: "SYD-AB123456CD",
-    type: "HPE Primera",
-    greenScore: 88,
-    sustainability: {
-      powerEfficiency: 88,
-      carbonReduction: 82,
-      circularEconomy: 90
-    },
-    capacity: "50TB",
-    price: 65000
-  },
-  {
-    id: 3,
-    name: "NYC-EF789012GH",
-    type: "HPE Nimble Storage",
-    greenScore: 85,
-    sustainability: {
-      powerEfficiency: 85,
-      carbonReduction: 75,
-      circularEconomy: 88
-    },
-    capacity: "25TB",
-    price: 28000
-  }
-];
+// Import shared device data system
+const { getCurrentDeviceData } = require("../shared/deviceData");
 
 // GET /sustainability/metrics - Fetches sustainability-focused data
-router.get('/metrics', (req, res) => {
+router.get("/metrics", (req, res) => {
   try {
+    // Get consistent device data (shared across all APIs)
+    const deviceData = getCurrentDeviceData();
+
+    // Transform data to focus on sustainability metrics
+    const sustainabilityData = deviceData.map((device) => ({
+      // Static values
+      id: device.id,
+      name: device.name,
+      type: device.type,
+      capacity: device.capacity,
+
+      // Sustainability-focused metrics
+      greenScore: device.greenScore,
+      sustainability: device.sustainability,
+      price: device.price,
+      energyConsumption: device.energyConsumption,
+      carbonFootprint: device.carbonFootprint,
+      recyclableComponents: device.recyclableComponents,
+      energyStarRating: device.energyStarRating,
+      renewableEnergyUsage: device.renewableEnergyUsage,
+      lastUpdated: device.lastUpdated,
+    }));
+
+    // Sort devices by greenScore in ascending order (lowest to highest)
+    const sortedSustainabilityData = sustainabilityData.sort(
+      (a, b) => a.greenScore - b.greenScore
+    );
+
     res.json({
-      devices: sustainabilityData
+      devices: sortedSustainabilityData,
+      timestamp: new Date().toISOString(),
+      count: sortedSustainabilityData.length,
     });
   } catch (error) {
     res.status(500).json({
       error: {
         code: "INTERNAL_ERROR",
         message: "Failed to fetch sustainability metrics",
-        details: error.message
-      }
+        details: error.message,
+      },
     });
   }
 });
