@@ -3,12 +3,18 @@ const router = express.Router();
 
 // Import shared device data system
 const { getCurrentDeviceData } = require("../shared/deviceData");
+// Import sorting utilities
+const { sortDevices, parseSortParams } = require("../utils/sorting");
 
 // GET /performance/metrics - Fetches performance-focused data
+// Query parameters: ?sortBy=score&sortOrder=asc
 router.get("/metrics", (req, res) => {
   try {
     // Get consistent device data (shared across all APIs)
     const deviceData = getCurrentDeviceData();
+
+    // Parse sorting parameters from query string
+    const { sortBy, sortOrder } = parseSortParams(req.query);
 
     // Transform data to focus on performance metrics
     const performanceData = deviceData.map((device) => ({
@@ -37,14 +43,17 @@ router.get("/metrics", (req, res) => {
     }));
 
     // Sort devices by score in ascending order (lowest to highest)
-    const sortedPerformanceData = performanceData.sort(
-      (a, b) => a.score - b.score
-    );
+    const sortedPerformanceData = sortDevices(performanceData, sortBy, sortOrder);
 
     res.json({
       devices: sortedPerformanceData,
       timestamp: new Date().toISOString(),
       count: sortedPerformanceData.length,
+      sorting: {
+        sortBy,
+        sortOrder,
+        availableFields: ['deviceScore', 'score', 'greenScore', 'featureScore']
+      }
     });
   } catch (error) {
     res.status(500).json({

@@ -3,22 +3,31 @@ const router = express.Router();
 
 // Import shared device data system
 const { getCurrentDeviceData } = require("../shared/deviceData");
+// Import sorting utilities
+const { sortDevices, parseSortParams } = require("../utils/sorting");
 
 // GET /storage/devices - Fetches all storage devices for the main dashboard overview table
+// Query parameters: ?sortBy=deviceScore&sortOrder=asc
 router.get("/devices", (req, res) => {
   try {
     // Get consistent device data (shared across all APIs)
     const deviceData = getCurrentDeviceData();
 
-    // Sort devices by deviceScore in ascending order (lowest to highest)
-    const sortedDevices = deviceData.sort(
-      (a, b) => a.deviceScore - b.deviceScore
-    );
+    // Parse sorting parameters from query string
+    const { sortBy, sortOrder } = parseSortParams(req.query);
+
+    // Sort devices based on query parameters (default: deviceScore ascending)
+    const sortedDevices = sortDevices(deviceData, sortBy, sortOrder);
 
     res.json({
       devices: sortedDevices,
       timestamp: new Date().toISOString(),
       count: sortedDevices.length,
+      sorting: {
+        sortBy,
+        sortOrder,
+        availableFields: ['deviceScore', 'score', 'greenScore', 'featureScore']
+      }
     });
   } catch (error) {
     res.status(500).json({
