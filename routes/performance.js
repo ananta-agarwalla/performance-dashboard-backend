@@ -26,13 +26,11 @@ router.get("/metrics", (req, res) => {
 
       // Performance-focused metrics
       score: device.score,
-      readSpeed: device.readSpeed,
-      writeSpeed: device.writeSpeed,
+      throughput: device.throughput, // Combined throughput instead of separate read/write speeds
       iops: device.iops,
       latency: device.latency,
       readLatency: device.readLatency,
       writeLatency: device.writeLatency,
-      throughput: device.throughput,
       cpuUtilization: device.cpuUtilization,
       memoryUtilization: device.memoryUtilization,
       networkUtilization: device.networkUtilization,
@@ -42,7 +40,7 @@ router.get("/metrics", (req, res) => {
       utilizationPercent: device.utilizationPercent,
       temperatureCelsius: device.temperatureCelsius,
       lastUpdated: device.lastUpdated,
-      
+
       // Capacity metrics
       totalCapacityTB: device.totalCapacityTB,
       usedCapacityTB: device.usedCapacityTB,
@@ -50,7 +48,11 @@ router.get("/metrics", (req, res) => {
     }));
 
     // Sort devices by score in ascending order (lowest to highest)
-    const sortedPerformanceData = sortDevices(performanceData, sortBy, sortOrder);
+    const sortedPerformanceData = sortDevices(
+      performanceData,
+      sortBy,
+      sortOrder
+    );
 
     res.json({
       devices: sortedPerformanceData,
@@ -59,8 +61,8 @@ router.get("/metrics", (req, res) => {
       sorting: {
         sortBy,
         sortOrder,
-        availableFields: ['deviceScore', 'score', 'greenScore', 'featureScore']
-      }
+        availableFields: ["deviceScore", "score", "greenScore", "featureScore"],
+      },
     });
   } catch (error) {
     res.status(500).json({

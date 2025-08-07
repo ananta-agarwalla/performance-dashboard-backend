@@ -28,6 +28,12 @@ router.get("/comparison", (req, res) => {
       replication: device.replication,
       protocols: device.protocols,
 
+      // Extract data reduction information as boolean
+      dataReduction: !!(
+        device.features?.dataManagement?.deduplication ||
+        device.features?.dataManagement?.compression
+      ),
+
       // Feature-focused metrics
       featureScore: device.featureScore,
       uptimePercentage: device.uptimePercentage,
@@ -48,8 +54,8 @@ router.get("/comparison", (req, res) => {
       sorting: {
         sortBy,
         sortOrder,
-        availableFields: ['deviceScore', 'score', 'greenScore', 'featureScore']
-      }
+        availableFields: ["deviceScore", "score", "greenScore", "featureScore"],
+      },
     });
   } catch (error) {
     res.status(500).json({
